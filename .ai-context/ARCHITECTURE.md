@@ -3,7 +3,7 @@
 ## Tech Stack
 - **Frontend**: React 19, TypeScript, Tailwind CSS v4 (`@tailwindcss/vite`), Vite 8, Lucide React, Motion, KaTeX.
 - **Desktop Runtime**: Tauri v2 (`veritas-forensic`), supporting native macOS WKWebView and Microsoft Edge WebView2 on Windows 10/11 x86_64.
-- **Window Architecture**: Decoupled multi-window orchestration (hidden primary workbench + borderless transparent floating intro with dynamic primary monitor bounds and HazeOver backdrop dimming).
+- **Window Architecture**: The main Tauri workbench is the primary visible window. Desktop first-launch onboarding is rendered as an in-workbench `FirstLaunchIntro` overlay, backed by the native `.intro_seen` app-data marker. The legacy native intro window is retained for upgrade compatibility but hidden.
 - **Backend / Server Runtime**: Node.js (v24), Express 4, `tsx` runtime.
 - **Machine Learning & Inference**: `@huggingface/transformers` (ONNX Runtime Web/WASM + CPU quantized sequence classification using `onnx-community/roberta-base-openai-detector-ONNX` embedded offline in `public/models/roberta-detector/`).
 - **Container Parsers**: JSZip (OpenXML DOCX disassembly), PDF.js (`pdfjs-dist`).
