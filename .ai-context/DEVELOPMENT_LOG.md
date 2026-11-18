@@ -1,5 +1,20 @@
 # Development Log: AI Detection School Project (Veritas Forensic)
 
+## 2026-11-18 — Desktop Onboarding Startup Visibility Fix
+- **Issue**: The Tauri desktop app could remain without a visible window for several seconds on first launch and then open directly to the workbench. The separate transparent, full-screen native intro window could also render as a black surface and was unreliable to capture or screen-record.
+- **Root Cause**: Onboarding depended on a decoupled native intro WebView being shown after document-load and animation timing. First-launch state changes across the native process and React page could therefore race.
+- **Resolution**:
+  - Moved onboarding into the existing `FirstLaunchIntro` React overlay inside the main workbench window.
+  - Added `get_intro_seen` as a Tauri command backed by the persistent `.intro_seen` app-data marker.
+  - Updated the main window to show immediately and determine onboarding state asynchronously in React.
+  - Kept the legacy native intro window configuration for upgrade compatibility but hide it instead of using it as the startup surface.
+- **Verification**:
+  - `npm run lint` passes.
+  - `npm run build` passes.
+  - `cargo check --manifest-path src-tauri/Cargo.toml` passes.
+  - macOS Tauri `.app` bundle builds successfully.
+- **Pull Request**: `sp3rshdhxxd/veritas#1`, merged to `main` on 2026-11-18.
+
 ## 2026-11-10 04:10 — Release v1.2.0 Packaging: macOS & Windows Installers Ready
 - **Release Version**: `1.2.0` (Major Internal Overhaul).
 - **macOS Build**:
