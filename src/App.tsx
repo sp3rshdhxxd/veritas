@@ -15,7 +15,11 @@ import {
   evaluateFileSubmission,
   evaluateTextSubmission,
 } from "./utils/submissionEvaluator";
-import { isDesktopApp, revealMainWindow } from "./utils/tauriBridge";
+import {
+  getIntroSeen,
+  isDesktopApp,
+  revealMainWindow,
+} from "./utils/tauriBridge";
 
 const SAMPLE_ESSAY = `Recent developments in artificial intelligence have precipitated profound paradigm shifts across contemporary higher education. Large language models exhibit remarkable capabilities in synthesizing multi-disciplinary domain knowledge, structuring expository essays, and generating syntactically cohesive academic discourse. Consequently, post-secondary institutions are confronted with substantial methodological dilemmas regarding authentic assessment protocols, scholarly attribution, and academic integrity. Furthermore, it is essential to recognize that heuristic evaluation metrics must be calibrated against empirical human academic controls to prevent the disproportionate penalization of non-native English writers or technical derivations containing symbolic mathematical notation.`;
 
@@ -27,11 +31,7 @@ export default function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDossierOpen, setIsDossierOpen] = useState(false);
-  const [showIntro, setShowIntro] = useState<boolean>(() => {
-    // In native desktop app, the intro is handled by the dedicated native 'intro' window!
-    if (typeof window === "undefined" || isDesktopApp()) return false;
-    return localStorage.getItem("veritas_intro_seen") !== "true";
-  });
+  const [showIntro, setShowIntro] = useState(false);
 
   const handleCompleteIntro = () => {
     setShowIntro(false);
@@ -43,6 +43,25 @@ export default function App() {
     // In native Tauri desktop, reveal and bring the main workbench window forward
     void revealMainWindow();
   };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const resolveIntroState = async () => {
+      const seen = isDesktopApp()
+        ? await getIntroSeen()
+        : localStorage.getItem("veritas_intro_seen") === "true";
+
+      if (!cancelled) {
+        setShowIntro(!seen);
+      }
+    };
+
+    void resolveIntroState();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleReplayIntro = () => {
     setShowIntro(true);

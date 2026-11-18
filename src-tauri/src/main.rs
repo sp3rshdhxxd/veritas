@@ -42,6 +42,17 @@ fn get_model_status() -> ModelStatus {
 }
 
 #[tauri::command]
+fn get_intro_seen(app_handle: tauri::AppHandle) -> bool {
+    use tauri::Manager;
+
+    app_handle
+        .path()
+        .app_data_dir()
+        .map(|app_dir| app_dir.join(".intro_seen").exists())
+        .unwrap_or(false)
+}
+
+#[tauri::command]
 fn show_main_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     use tauri::Manager;
     // Mark onboarding as completed persistently in app data dir
@@ -73,27 +84,9 @@ fn main() {
             }
 
             if intro_already_seen {
-                // User has already seen the intro in a previous session:
-                // Close the intro window immediately and show the main window directly!
+                // Close the legacy native intro window after upgrading.
                 if let Some(intro_win) = app.get_webview_window("intro") {
                     let _ = intro_win.close();
-                }
-                if let Some(main_win) = app.get_webview_window("main") {
-                    let _ = main_win.show();
-                    let _ = main_win.set_focus();
-                }
-            } else {
-                // Size intro window to primary monitor for seamless edge-to-edge HazeOver backdrop
-                if let Some(intro_win) = app.get_webview_window("intro") {
-                    if let Ok(Some(monitor)) = app.primary_monitor() {
-                        let monitor_size = monitor.size();
-                        let scale_factor = monitor.scale_factor();
-                        let logical_width = monitor_size.width as f64 / scale_factor;
-                        let logical_height = monitor_size.height as f64 / scale_factor;
-
-                        let _ = intro_win.set_size(tauri::LogicalSize::new(logical_width, logical_height));
-                        let _ = intro_win.set_position(tauri::LogicalPosition::new(0.0, 0.0));
-                    }
                 }
             }
             Ok(())
@@ -101,6 +94,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             get_app_info,
             get_model_status,
+            get_intro_seen,
             show_main_window
         ])
         .run(tauri::generate_context!())

@@ -22,7 +22,7 @@
         "fullscreen": false,
         "backgroundColor": "#090d16",
         "dragDropEnabled": false,
-        "visible": false
+        "visible": true
       },
       {
         "label": "intro",
@@ -36,7 +36,7 @@
         "shadow": false,
         "alwaysOnTop": true,
         "center": true,
-        "visible": true
+        "visible": false
       }
     ],
     "security": {
