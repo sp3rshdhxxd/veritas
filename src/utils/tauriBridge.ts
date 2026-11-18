@@ -16,6 +16,17 @@ export interface DesktopModelStatus {
 }
 
 /**
+ * Reads the native first-launch marker.
+ */
+export async function getIntroSeen(): Promise<boolean> {
+  if (!isDesktopApp()) {
+    return false;
+  }
+
+  return (await invokeDesktopCommand<boolean>("get_intro_seen")) ?? false;
+}
+
+/**
  * Checks whether the application is running inside the Tauri native desktop shell.
  */
 export function isDesktopApp(): boolean {
